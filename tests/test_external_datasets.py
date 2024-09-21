@@ -252,10 +252,8 @@ def test_mit1003(location, matlab):
     for i in range(len(fixations.x)):
         assert len(remove_trailing_nans(fixations.duration_hist[i])) == len(remove_trailing_nans(fixations.x_hist[i]))
 
-    assert 'durations' in fixations.scanpath_fixation_attributes
-    assert len(fixations.scanpath_fixation_attributes['durations']) == len(fixations.train_xs)
-    for i in range(len(fixations.train_xs)):
-        assert len(remove_trailing_nans(fixations.scanpath_fixation_attributes['durations'][i])) == len(remove_trailing_nans(fixations.train_xs[i]))
+    assert 'durations' in fixations.scanpaths.fixation_attributes
+    assert len(fixations.scanpath.fixation_attributes['durations']) == len(fixations.scanpaths.xs)
 
     assert len(fixations) == len(pysaliency.datasets.remove_out_of_stimulus_fixations(stimuli, fixations))
 

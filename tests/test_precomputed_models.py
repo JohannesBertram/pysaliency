@@ -23,19 +23,30 @@ class TestSaliencyMapModel(pysaliency.SaliencyMapModel):
 
 @pytest.fixture
 def file_stimuli(tmpdir):
+    stimuli_directory = tmpdir.join('stimuli')
+    stimuli_directory.mkdir()
+
     filenames = []
     for i in range(3):
-        filename = tmpdir.join('stimulus_{:04d}.png'.format(i))
+        filename = stimuli_directory.join('stimulus_{:04d}.png'.format(i))
         imsave(str(filename), np.random.randint(low=0, high=255, size=(100, 100, 3), dtype=np.uint8))
         filenames.append(str(filename))
 
     for sub_directory_index in range(3):
-        sub_directory = tmpdir.join('sub_directory_{:04d}'.format(sub_directory_index))
+        sub_directory = stimuli_directory.join('sub_directory_{:04d}'.format(sub_directory_index))
         sub_directory.mkdir()
         for i in range(5):
             filename = sub_directory.join('stimulus_{:04d}.png'.format(i))
             imsave(str(filename), np.random.randint(low=0, high=255, size=(100, 100, 3), dtype=np.uint8))
             filenames.append(str(filename))
+
+    sub_directory = stimuli_directory.join('other_stimuli')
+    sub_directory.mkdir()
+    for i in range(3):
+        filename = sub_directory.join('otherstimulus_{:04d}.png'.format(i))
+        imsave(str(filename), np.random.randint(low=0, high=255, size=(100, 100, 3), dtype=np.uint8))
+        filenames.append(str(filename))
+
     return pysaliency.FileStimuli(filenames=filenames)
 
 
@@ -121,6 +132,30 @@ def test_hdf5_model_empty_stimuli(stimuli, tmpdir):
     sub_stimuli = stimuli[[]]
 
     pysaliency.HDF5Model(sub_stimuli, filename)
+
+
+def test_hdf5_model_sub_stimuli_other_prefix(file_stimuli, tmpdir):
+    model = pysaliency.models.SaliencyMapNormalizingModel(TestSaliencyMapModel())
+    filename = str(tmpdir.join('model.hdf5'))
+    export_model_to_hdf5(model, file_stimuli, filename)
+
+    sub_stimuli = file_stimuli[[i for i, f in enumerate(file_stimuli.filenames) if f.startswith('other_stimuli')]]
+
+    stimuli_directory = tmpdir.join('stimuli2')
+    stimuli_directory.mkdir()
+    filenames = []
+
+    for i in range(3):
+        _filename = stimuli_directory.join('otherstimulus_{:04d}.png'.format(i))
+        imsave(str(_filename), np.random.randint(low=0, high=255, size=(100, 100, 3), dtype=np.uint8))
+        filenames.append(str(_filename))
+
+    sub_stimuli_at_other_location = pysaliency.FileStimuli(filenames=filenames)
+
+    hdf5_model = pysaliency.HDF5Model(sub_stimuli_at_other_location, filename)
+
+    for s1, s2 in zip(sub_stimuli, sub_stimuli_at_other_location):
+        np.testing.assert_allclose(hdf5_model.log_density(s2), model.log_density(s1))
 
 
 def test_export_model_overwrite(file_stimuli, tmpdir):

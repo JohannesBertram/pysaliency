@@ -29,6 +29,19 @@ def get_stimuli_filenames(stimuli):
         return stimuli.filenames
 
 
+def _check_unique_postfixes(filenames, keys):
+    """checks if filenames can be uniquely identified in keys as postfix"""
+    filename_keys = []
+    for filename in filenames:
+        matching_keys = [key for key in keys if key.endswith(filename)]
+        if len(matching_keys) == 1:
+            filename_keys.append(matching_keys[0])
+        else:
+            raise ValueError('No unique postfix found for {}'.format(filename))
+
+    return filename_keys
+
+
 def get_keys_from_filenames(filenames, keys):
     """checks how much filenames have to be shorted to get the correct hdf5 or other keys"""
     if not filenames:
@@ -36,9 +49,15 @@ def get_keys_from_filenames(filenames, keys):
 
     first_filename_parts = full_split(filenames[0])
     for part_index in range(len(first_filename_parts)):
-        remaining_filename = os.path.join(*first_filename_parts[part_index:])
-        if remaining_filename in keys:
+        #remaining_filename = os.path.join(*first_filename_parts[part_index:])
+        # TODO: Should check if all filenames have the same prefix?
+        remaining_filenames = [os.path.join(*full_split(filename)[part_index:]) for filename in filenames]
+
+        try:
+            filename_keys = _check_unique_postfixes(remaining_filenames, keys)
             break
+        except ValueError:
+            continue
     else:
         print("No common prefix found!")
         print(f"  filename: {filenames[0]}")
@@ -50,11 +69,11 @@ def get_keys_from_filenames(filenames, keys):
 
         raise ValueError('No common prefix found!')
 
-    filename_keys = []
-    for filename in filenames:
-        filename_parts = full_split(filename)
-        remaining_filename = os.path.join(*filename_parts[part_index:])
-        filename_keys.append(remaining_filename)
+    # filename_keys = []
+    # for filename in filenames:
+    #     filename_parts = full_split(filename)
+    #     remaining_filename = os.path.join(*filename_parts[part_index:])
+    #     filename_keys.append(remaining_filename)
 
     return filename_keys
 
