@@ -342,7 +342,7 @@ class FileStimuli(Stimuli):
         self.stimuli.cache = value
 
     def load_stimulus(self, n):
-        return imread(self.filenames[n])
+        return imread(self.filenames[n].replace("\\", "/"))
 
     def __getitem__(self, index):
         if isinstance(index, slice):
