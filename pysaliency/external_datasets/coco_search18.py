@@ -77,7 +77,7 @@ def get_COCO_Search18(location=None, split=1, merge_tasks=True, unique_images=Tr
             fixations_train = _load(os.path.join(location, 'fixations_train.hdf5'))
             stimuli_validation = _load(os.path.join(location, 'stimuli_validation.hdf5'))
             fixations_validation = _load(os.path.join(location, 'fixations_validation.hdf5'))
-            #stimuli_test = _load(os.path.join(location, 'stimuli_test.hdf5'))
+            stimuli_test = _load(os.path.join(location, 'stimuli_test.hdf5'))
             return stimuli_train, fixations_train, stimuli_validation, fixations_validation
         os.makedirs(location)
 
@@ -159,22 +159,24 @@ def get_COCO_Search18(location=None, split=1, merge_tasks=True, unique_images=Tr
             ns_val = sorted(set(scanpaths_validation.n))
             stimuli_val, fixations_val = create_subset(stimuli, scanpaths_validation, ns_val)
 
-            """if test_data:
+            if test_data:
                 with open(test_data) as f:
                     json_test_data = json.load(f)
                     scanpaths_test = _get_COCO_Search18_fixations(json_test_data, filenames)
                     del scanpaths_test.scanpath_attributes['split']
                     ns_test = sorted(set(scanpaths_test.n))
 
-                    assert len(ns_test) == len(TEST_STIMULUS_INDICES)
-                    assert np.all(np.array(ns_test) == TEST_STIMULUS_INDICES)
-                    _, fixations_test = create_subset(stimuli, scanpaths_test, ns_test)"""
+                    #assert len(ns_test) == len(TEST_STIMULUS_INDICES)
+                    #assert np.all(np.array(ns_test) == TEST_STIMULUS_INDICES)
+                    _, fixations_test = create_subset(stimuli, scanpaths_test, ns_test)
 
         if location:
             stimuli_train.to_hdf5(os.path.join(location, 'stimuli_train.hdf5'))
             fixations_train.to_hdf5(os.path.join(location, 'fixations_train.hdf5'))
             stimuli_val.to_hdf5(os.path.join(location, 'stimuli_validation.hdf5'))
             fixations_val.to_hdf5(os.path.join(location, 'fixations_validation.hdf5'))
+            if test_data:
+                fixations_test.to_hdf5(os.path.join(location, 'fixations_test.hdf5'))
 
     return stimuli_train, fixations_train, stimuli_val, fixations_val
 
