@@ -338,4 +338,4 @@ def _get_COCO_Search18_fixations(json_data, filenames, task_in_filename):
 
     return fixations
 
-get_COCO_Search18()
+#get_COCO_Search18()
