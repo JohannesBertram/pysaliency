@@ -163,7 +163,7 @@ def get_COCO_Search18(location=None, split=1, merge_tasks=True, unique_images=Tr
                 with open(test_data) as f:
                     json_test_data = json.load(f)
                     scanpaths_test = _get_COCO_Search18_fixations(json_test_data, filenames, task_in_filename=not merge_tasks)
-                    del scanpaths_test.scanpath_attributes['split']
+                    del scanpaths_test.scanpaths.scanpath_attributes['split']
                     ns_test = sorted(set(scanpaths_test.n))
 
                     #assert len(ns_test) == len(TEST_STIMULUS_INDICES)
